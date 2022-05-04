@@ -6,6 +6,15 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QSlider, 
     QCheckBox
 from PyQt5.QtWidgets import QApplication
 
+def selectedInstance(theInstance):
+    print("Selected instance: " + theInstance)
+def selectedClass(theClass):
+    print("Selected class: " + theClass)
+def setBrightness(sliderLevel):
+    print(sliderLevel)
+def setSaturation(sliderLevel):
+    print(sliderLevel)
+
 if __name__ == '__main__':
     # Widget Initialization
     application = QApplication(sys.argv)
@@ -13,7 +22,7 @@ if __name__ == '__main__':
     imgSettingLayout = [QHBoxLayout(), QHBoxLayout(), QHBoxLayout(), QHBoxLayout()]
     settingLayout = [QVBoxLayout(), QVBoxLayout(), QVBoxLayout(), QVBoxLayout()]
     imageLabel = [QLabel(), QLabel(), QLabel(), QLabel()]
-    pixmap = QPixmap('Sigi_Banner.png')
+    pixmap = QPixmap('img.jpg')
     tabWindow = QTabWidget()
     tabMask = QWidget()
     tabSlider = QWidget()
@@ -40,6 +49,8 @@ if __name__ == '__main__':
     settingLayout[0].addWidget(dropdownClasses)
     settingLayout[0].addWidget(labelSelectedMasksList)
     settingLayout[0].addWidget(labelList)
+    dropdownInstance.currentTextChanged.connect(selectedInstance)
+    dropdownClasses.currentTextChanged.connect(selectedClass)
 
     # Tab2
     labelBrightness = QLabel("Brightness")
@@ -51,6 +62,8 @@ if __name__ == '__main__':
     settingLayout[1].addWidget(sliderBrightness)
     settingLayout[1].addWidget(labelSaturation)
     settingLayout[1].addWidget(sliderSaturation)
+    sliderBrightness.valueChanged.connect(setBrightness)
+    sliderSaturation.valueChanged.connect(setSaturation)
 
     # Tab3
     for i in range(3):
