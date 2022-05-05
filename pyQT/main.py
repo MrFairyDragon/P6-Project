@@ -6,14 +6,34 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QSlider, 
     QCheckBox
 from PyQt5.QtWidgets import QApplication
 
+
+def changeBrightness():
+    print("hej")
+
+
+def changeSaturation():
+    print("hej")
+
+
+def changeKernel():
+    print("hej")
+
+
+def doMathPlot():
+    print("ete")
+
+
+def doBlur():
+    print("blur")
+
+
 if __name__ == '__main__':
-    # Widget Initialization
     application = QApplication(sys.argv)
     window = QWidget()
     imgSettingLayout = [QHBoxLayout(), QHBoxLayout(), QHBoxLayout(), QHBoxLayout()]
     settingLayout = [QVBoxLayout(), QVBoxLayout(), QVBoxLayout(), QVBoxLayout()]
     imageLabel = [QLabel(), QLabel(), QLabel(), QLabel()]
-    pixmap = QPixmap('Sigi_Banner.png')
+    pixmap = QPixmap('img.jpg')
     tabWindow = QTabWidget()
     tabMask = QWidget()
     tabSlider = QWidget()
@@ -51,6 +71,8 @@ if __name__ == '__main__':
     settingLayout[1].addWidget(sliderBrightness)
     settingLayout[1].addWidget(labelSaturation)
     settingLayout[1].addWidget(sliderSaturation)
+    sliderBrightness.valueChanged.connect(changeBrightness)
+    sliderSaturation.valueChanged.connect(changeSaturation)
 
     # Tab3
     for i in range(3):
@@ -59,6 +81,7 @@ if __name__ == '__main__':
         lineEditValue = QLineEdit()
         layoutValue.addWidget(labelValue)
         layoutValue.addWidget(lineEditValue)
+        lineEditValue.textChanged.connect(doMathPlot)
         settingLayout[2].addLayout(layoutValue)
     settingLayout[2].setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -82,6 +105,9 @@ if __name__ == '__main__':
     sliderKernel = QSlider(Qt.Orientation.Horizontal)
     settingLayout[3].addWidget(labelKernel)
     settingLayout[3].addWidget(sliderKernel)
+    sliderKernel.valueChanged.connect(changeKernel)
+    lineEditValue1.stateChanged.connect(doBlur)
+    lineEditValue2.stateChanged.connect(doBlur)
 
     # Tabs
     tabWindow.addTab(tabMask, "Mask")
@@ -110,13 +136,6 @@ if __name__ == '__main__':
 
     for i in imageLabel:
         i.setPixmap(pixmap)
-
-    # layout.addWidget(slider)
-    # layout.addWidget(textBox)
-
-    # Event Function Calls
-    # greetButton.clicked.connect(greet)
-    # slider.valueChanged.connect(changeImage)
 
     # Window manipulation
     window.setWindowTitle("PYQT")
