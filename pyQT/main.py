@@ -5,40 +5,16 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QSlider, QTabWidget, QComboBox, QLineEdit, \
     QCheckBox
 from PyQt5.QtWidgets import QApplication
-
-<<<<<<< HEAD
-
-def changeBrightness():
-    print("hej")
-
-
-def changeSaturation():
-    print("hej")
-
-
-def changeKernel():
-    print("hej")
-
-
-def doMathPlot():
-    print("ete")
-
-
-def doBlur():
-    print("blur")
-
-=======
-def selectedInstance(theInstance):
-    print("Selected instance: " + theInstance)
-def selectedClass(theClass):
-    print("Selected class: " + theClass)
-def setBrightness(sliderLevel):
-    print(sliderLevel)
-def setSaturation(sliderLevel):
-    print(sliderLevel)
->>>>>>> ea44ffb3efc00f6ee4a88e792869ebf526c68acc
+from pyQT.maskSelection import maskSelection
+from pyQT.kernel import kernel
+from pyQT.curveTool import curveTool
+from pyQT.brigtnessSaturation import brigtnessSaturation
 
 if __name__ == '__main__':
+    maskSelection = maskSelection()
+    kernel = kernel()
+    curveTool = curveTool()
+    brigtnessSaturation = brigtnessSaturation()
     application = QApplication(sys.argv)
     window = QWidget()
     imgSettingLayout = [QHBoxLayout(), QHBoxLayout(), QHBoxLayout(), QHBoxLayout()]
@@ -59,6 +35,10 @@ if __name__ == '__main__':
     dropdownInstance = QComboBox()
     labelClasses = QLabel("Classes")
     dropdownClasses = QComboBox()
+    labelGroups = QLabel("Groups")
+    dropdownGroups = QComboBox()
+    dropdownGroups.addItem("item1")
+    dropdownGroups.addItem("item2")
     labelSelectedMasksList = QLabel("SelectedMasks")
     settingLayout[0].setAlignment(Qt.AlignmentFlag.AlignTop)
     settingLayout[0].addWidget(labelInstance)
@@ -69,10 +49,13 @@ if __name__ == '__main__':
     dropdownClasses.addItem("item1")
     dropdownClasses.addItem("item2")
     settingLayout[0].addWidget(dropdownClasses)
+    settingLayout[0].addWidget(labelGroups)
+    settingLayout[0].addWidget(dropdownGroups)
     settingLayout[0].addWidget(labelSelectedMasksList)
     settingLayout[0].addWidget(labelList)
-    dropdownInstance.currentTextChanged.connect(selectedInstance)
-    dropdownClasses.currentTextChanged.connect(selectedClass)
+    dropdownInstance.currentTextChanged.connect(maskSelection.instanceDropDownChange)
+    dropdownClasses.currentTextChanged.connect(maskSelection.classDropDownChange)
+    dropdownGroups.currentTextChanged.connect(maskSelection.groupDropDownChange)
 
     # Tab2
     labelBrightness = QLabel("Brightness")
@@ -84,13 +67,9 @@ if __name__ == '__main__':
     settingLayout[1].addWidget(sliderBrightness)
     settingLayout[1].addWidget(labelSaturation)
     settingLayout[1].addWidget(sliderSaturation)
-<<<<<<< HEAD
-    sliderBrightness.valueChanged.connect(changeBrightness)
-    sliderSaturation.valueChanged.connect(changeSaturation)
-=======
-    sliderBrightness.valueChanged.connect(setBrightness)
-    sliderSaturation.valueChanged.connect(setSaturation)
->>>>>>> ea44ffb3efc00f6ee4a88e792869ebf526c68acc
+
+    sliderBrightness.valueChanged.connect(brigtnessSaturation.brightnessChange)
+    sliderSaturation.valueChanged.connect(brigtnessSaturation.saturationChange)
 
     # Tab3
     for i in range(3):
@@ -99,7 +78,7 @@ if __name__ == '__main__':
         lineEditValue = QLineEdit()
         layoutValue.addWidget(labelValue)
         layoutValue.addWidget(lineEditValue)
-        lineEditValue.textChanged.connect(doMathPlot)
+        lineEditValue.textChanged.connect(curveTool.valueChange)
         settingLayout[2].addLayout(layoutValue)
     settingLayout[2].setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -123,9 +102,9 @@ if __name__ == '__main__':
     sliderKernel = QSlider(Qt.Orientation.Horizontal)
     settingLayout[3].addWidget(labelKernel)
     settingLayout[3].addWidget(sliderKernel)
-    sliderKernel.valueChanged.connect(changeKernel)
-    lineEditValue1.stateChanged.connect(doBlur)
-    lineEditValue2.stateChanged.connect(doBlur)
+    sliderKernel.valueChanged.connect(kernel.intensityChange)
+    lineEditValue1.stateChanged.connect(kernel.doBackground)
+    lineEditValue2.stateChanged.connect(kernel.doBlur)
 
     # Tabs
     tabWindow.addTab(tabMask, "Mask")
