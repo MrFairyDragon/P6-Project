@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QSlider, 
     QCheckBox
 from PyQt5.QtWidgets import QApplication
 
+<<<<<<< HEAD
 
 def changeBrightness():
     print("hej")
@@ -26,6 +27,16 @@ def doMathPlot():
 def doBlur():
     print("blur")
 
+=======
+def selectedInstance(theInstance):
+    print("Selected instance: " + theInstance)
+def selectedClass(theClass):
+    print("Selected class: " + theClass)
+def setBrightness(sliderLevel):
+    print(sliderLevel)
+def setSaturation(sliderLevel):
+    print(sliderLevel)
+>>>>>>> ea44ffb3efc00f6ee4a88e792869ebf526c68acc
 
 if __name__ == '__main__':
     application = QApplication(sys.argv)
@@ -60,6 +71,8 @@ if __name__ == '__main__':
     settingLayout[0].addWidget(dropdownClasses)
     settingLayout[0].addWidget(labelSelectedMasksList)
     settingLayout[0].addWidget(labelList)
+    dropdownInstance.currentTextChanged.connect(selectedInstance)
+    dropdownClasses.currentTextChanged.connect(selectedClass)
 
     # Tab2
     labelBrightness = QLabel("Brightness")
@@ -71,8 +84,13 @@ if __name__ == '__main__':
     settingLayout[1].addWidget(sliderBrightness)
     settingLayout[1].addWidget(labelSaturation)
     settingLayout[1].addWidget(sliderSaturation)
+<<<<<<< HEAD
     sliderBrightness.valueChanged.connect(changeBrightness)
     sliderSaturation.valueChanged.connect(changeSaturation)
+=======
+    sliderBrightness.valueChanged.connect(setBrightness)
+    sliderSaturation.valueChanged.connect(setSaturation)
+>>>>>>> ea44ffb3efc00f6ee4a88e792869ebf526c68acc
 
     # Tab3
     for i in range(3):
