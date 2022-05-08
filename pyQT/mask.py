@@ -1,10 +1,12 @@
 import numpy as np
-from pyQT.maskSetting import maskSetting
+from pyQT.MaskSettings import MaskSettings
 
 
-class mask(maskSetting):
+class Mask:
 
-    def __init__(self):
-        self.array = np.ndarray(shape=(3, 3, 3))
-        print("test")
-        maskSetting.red = 2
+    def __init__(self, array, img, name, maskClass):
+        self.maskSettings = MaskSettings()
+        self.maskName = name
+        self.maskClass = maskClass
+        self.maskImage = img
+        self.maskArray = array

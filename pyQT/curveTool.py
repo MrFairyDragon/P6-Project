@@ -1,7 +1,7 @@
-class curveTool:
+class CurveTool:
 
     def __init__(self):
-        print("test")
+        print("test curveTool init")
 
     def valueChange(self):
-        print("test")
+        print("test curveTool valueChange")
