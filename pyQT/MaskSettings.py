@@ -1,4 +1,4 @@
-class maskSetting:
+class MaskSettings:
 
     def __init__(self):
         self.brightness = 0

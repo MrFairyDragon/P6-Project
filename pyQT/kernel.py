@@ -1,14 +1,14 @@
-class kernel:
+class Kernel:
 
     def __init__(self):
-        print("test")
+        print("test kernel init")
 
 
     def doBackground(self):
-        print("Test")
+        print("Test kernel background")
 
     def doBlur(self):
-        print("Test")
+        print("Test kernel blur")
 
     def intensityChange(self):
-        print("Test")
+        print("Test kernel intensity")
