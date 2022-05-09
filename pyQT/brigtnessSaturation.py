@@ -1,10 +1,10 @@
 class brigtnessSaturation:
 
     def __init__(self):
-        print("Test")
+        print("bright")
 
     def brightnessChange(self):
-        print("test")
+        print("changedbrigt")
 
     def saturationChange(self):
-        print("Test")
+        print("changed sat")
