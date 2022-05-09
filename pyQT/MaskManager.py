@@ -1,6 +1,6 @@
 import cv2
 
-from pyQT.MaskSelection import MaskSelection
+from pyQT.maskSelection import MaskSelection
 from pyQT.BrightnessSaturation import BrightnessSaturation
 
 class MaskManager:

@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from PyQt5.QtGui import QPixmap
 
 
 class BrightnessSaturation:
@@ -41,7 +42,7 @@ class BrightnessSaturation:
         newImg = cv2.cvtColor(after, cv2.COLOR_HSV2BGR)
 
         maskImage = np.where(mask.maskArray == True, newImg, self.testImg)
-        cv2.imshow("masked", maskImage)
+        cv2.imwrite("edit.png", maskImage)
 
 
     def saturationChange(self, sliderNumber, mask):
@@ -66,4 +67,4 @@ class BrightnessSaturation:
         newImg = cv2.cvtColor(after, cv2.COLOR_HSV2BGR)
 
         maskImage = np.where(mask.maskArray == True, newImg, self.testImg)
-        cv2.imshow("masked", maskImage)
+        cv2.imwrite("edit.png", maskImage)

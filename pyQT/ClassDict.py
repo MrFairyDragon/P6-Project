@@ -1,5 +1,5 @@
 coco_classes = {
-    0: u'__background__',
+    0: u'background',
     1: u'person',
     2: u'bicycle',
     3: u'car',

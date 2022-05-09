@@ -1,9 +1,10 @@
+from pyQT import ClassDict
 from pyQT.MaskSettings import MaskSettings
 import cv2
 import numpy as np
-import ClassDict
-from Mask import Mask
-from MaskGroup import MaskGroup
+import pyQT.ClassDict
+from pyQT.mask import Mask
+from pyQT.MaskGroup import MaskGroup
 
 
 class MaskSelection():
@@ -48,3 +49,4 @@ class MaskSelection():
             classList.append(maskGroup)
 
         return maskList, classList
+

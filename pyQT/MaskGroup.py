@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from pyQT.Mask import Mask
+from pyQT.mask import Mask
 from pyQT.MaskSettings import MaskSettings
 
 class MaskGroup():
