@@ -12,6 +12,7 @@ class MaskManager:
 
         self.selectedMask = self.maskList[0]
         self.brightnessSaturation = BrightnessSaturation()
+        self.imageRecord = []
 
     def DrawCurrentImage(self):
 
@@ -46,10 +47,14 @@ class MaskManager:
     def instanceDropDownChange(self, index):
         print("Selected instance: " + str(index))
         self.selectedMask = self.maskList[index]
+        self.imageRecord.append(cv2.imread('edit.png'))
+        print(self.imageRecord)
 
     def classDropDownChange(self, index):
         print("Selected class: " + str(index))
         self.selectedMask = self.classList[index]
+        self.imageRecord.append(cv2.imread('edit.png'))
+        print(self.imageRecord)
 
     def groupDropDownChange(self, index):
         print("Selected group: " + str(index))
@@ -64,3 +69,7 @@ class MaskManager:
 
     def saturationChange(self, sliderValue):
         print(sliderValue)
+
+
+    def getImageRecord(self):
+        return self.imageRecord

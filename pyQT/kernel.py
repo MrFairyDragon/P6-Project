@@ -9,14 +9,16 @@ class Kernel:
         self.image = None
         self.background = False
 
-    def filter_blur(self, image, mask, str, background):
-        blur = cv2.blur(image, (str, str))
-        if background:
-            blur = np.where(mask == 0, blur, image)
+    def filter_blur(self, image, mask, str, background, apply):
+        if(apply):
+            blur = cv2.blur(image, (str, str))
+            if background:
+                blur = np.where(mask.maskImage == 0, blur, image)
+            else:
+                blur = np.where(mask.maskImage == 255, blur, image)
+            cv2.imwrite('edit.png', blur)
         else:
-            blur = np.where(mask == 255, blur, image)
-        cv2.imwrite('edit.png', blur)
-
+            cv2.imwrite('edit.png', image)
 
 
 

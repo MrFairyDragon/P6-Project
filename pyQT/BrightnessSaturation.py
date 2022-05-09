@@ -43,6 +43,7 @@ class BrightnessSaturation:
 
         maskImage = np.where(mask.maskArray == True, newImg, self.testImg)
         cv2.imwrite("edit.png", maskImage)
+        cv2.imwrite("noBlur.png", maskImage)
 
 
     def saturationChange(self, sliderNumber, mask):
@@ -68,3 +69,4 @@ class BrightnessSaturation:
 
         maskImage = np.where(mask.maskArray == True, newImg, self.testImg)
         cv2.imwrite("edit.png", maskImage)
+        cv2.imwrite("noBlur.png", maskImage)

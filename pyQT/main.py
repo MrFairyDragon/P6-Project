@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QSlider, QTabWidget, QComboBox, QLineEdit, \
-    QPushButton, QCheckBox
+    QPushButton, QCheckBox, QFileDialog
 from PyQt5.QtWidgets import QApplication
 
 import cv2
@@ -14,6 +14,12 @@ from pyQT.curveTool import curveTool
 from pyQT.BrightnessSaturation import BrightnessSaturation
 
 class UI:
+
+    #def load_image(self):
+    #   path, _ = QFileDialog.getOpenFileName(None, "Load Image", "")
+    # if path:
+    #      self.load_file(path)
+    #    self.pixmap =
 
     def TabSwitch(self, index):
         if index == 0:
@@ -32,17 +38,21 @@ class UI:
         self.window.update()
 
     def updateWindow(self):
+        self.cvimage = cv2.add()
         self.pixmap = QPixmap('edit.png')
         for i in self.imageLabel:
             i.setPixmap(self.pixmap)
-        self.cvimage = cv2.imread('edit.png')
-        self.cvmask = cv2.imread('selected_mask.jpg')
+        self.current_edit = cv2.imread("current_edit.png")
+        self.cvimageNoBlur = cv2.imread('noBlur.png')
         self.window.update()
 
     def __init__(self):
+        self.imageRecord = []
         cvmainimage = cv2.imread('img.jpg')
         cv2.imwrite('edit.png', cvmainimage)
+        cv2.imwrite('noBlur.png', cvmainimage)
         self.cvimage = cv2.imread('edit.png')
+        self.cvimageNoBlur = cv2.imread('noBlur.png')
         self.cvmask = cv2.imread('selected_mask.jpg')
         app = QApplication(sys.argv)
         self.maskSelection = MaskSelection()
@@ -50,10 +60,11 @@ class UI:
         self.curveTool = curveTool()
         self.brigtnessSaturation = BrightnessSaturation()
         self.window = QWidget()
+        saveFileButton = QPushButton()
         imgSettingLayout = [QHBoxLayout(), QHBoxLayout(), QHBoxLayout(), QHBoxLayout()]
         settingLayout = [QVBoxLayout(), QVBoxLayout(), QVBoxLayout(), QVBoxLayout()]
         self.imageLabel = [QLabel(), QLabel(), QLabel(), QLabel()]
-        pixmap = QPixmap('img.jpg')
+        self.pixmap = QPixmap('img.jpg')
         tabWindow = QTabWidget()
         tabMask = QWidget()
         tabSlider = QWidget()
@@ -65,30 +76,39 @@ class UI:
         tabWindow.currentChanged.connect(self.TabSwitch)
 
         # Tab1
-        labelList = QLabel("item1\nitem2")
         labelInstance = QLabel("Instance Selection")
         labelInstance.setFixedWidth(200)
         dropdownInstance = QComboBox()
+        for mask in self.maskManager.maskList:
+            dropdownInstance.addItem(mask.maskName)
+        dropdownInstance.activated.connect(self.maskManager.instanceDropDownChange)
+
         labelClasses = QLabel("Classes")
         dropdownClasses = QComboBox()
+        for maskClass in self.maskManager.classList:
+            dropdownClasses.addItem(maskClass.groupName)
+        dropdownClasses.activated.connect(self.maskManager.classDropDownChange)
+
         labelGroups = QLabel("Groups")
         dropdownGroups = QComboBox()
         dropdownGroups.addItem("item1")
         dropdownGroups.addItem("item2")
+        dropdownGroups.activated.connect(self.maskManager.groupDropDownChange)
+
         labelSelectedMasksList = QLabel("SelectedMasks")
+        labelList = QLabel("item1\nitem2")
+
         settingLayout[0].setAlignment(Qt.AlignmentFlag.AlignTop)
         settingLayout[0].addWidget(labelInstance)
-        dropdownInstance.addItem("item1")
-        dropdownInstance.addItem("item2")
         settingLayout[0].addWidget(dropdownInstance)
         settingLayout[0].addWidget(labelClasses)
-        dropdownClasses.addItem("item1")
-        dropdownClasses.addItem("item2")
         settingLayout[0].addWidget(dropdownClasses)
         settingLayout[0].addWidget(labelGroups)
         settingLayout[0].addWidget(dropdownGroups)
         settingLayout[0].addWidget(labelSelectedMasksList)
         settingLayout[0].addWidget(labelList)
+        #settingLayout[0].addWidget(saveFileButton)
+        #saveFileButton.pressed.connect(self.load_image)
 
         # Tab2
         labelBrightness = QLabel("Brightness")
@@ -114,6 +134,7 @@ class UI:
         sliderSaturation.valueChanged.connect(self.updateWindow)
 
         # Tab3
+        colorChannelCurve = QComboBox()
         layoutValue = [QHBoxLayout(), QHBoxLayout(), QHBoxLayout()]
         labelValue = [None, None, None]
         lineEditValue = [None, None, None]
@@ -125,7 +146,8 @@ class UI:
             layoutValue[i].addWidget(lineEditValue[i])
             settingLayout[2].addLayout(layoutValue[i])
         for i in range(3):
-            lineEditValue[i].textChanged.connect(lambda: curveTool.valueChange(curveTool, lineEditValue[0].text(), lineEditValue[1].text(), lineEditValue[2].text()))
+            lineEditValue[i].textChanged.connect(lambda: curveTool.valueChange(curveTool, lineEditValue[0].text(), lineEditValue[1].text(), lineEditValue[2].text(), colorChannelCurve.currentText(), self.maskManager.selectedMask, self.cvimageNoBlur))
+            lineEditValue[i].textChanged.connect(self.updateWindow)
         settingLayout[2].setAlignment(Qt.AlignmentFlag.AlignTop)
         self.mathpixmap = QPixmap('plot.png')
         self.labelmathpixmap = QLabel()
@@ -134,7 +156,10 @@ class UI:
         curveButton = QPushButton("Update")
         settingLayout[2].addWidget(curveButton)
         curveButton.clicked.connect(self.updateButton)
-
+        settingLayout[2].addWidget(colorChannelCurve)
+        colorChannelCurve.addItem("Green")
+        colorChannelCurve.addItem("Blue")
+        colorChannelCurve.addItem("Red")
         # Tab4
         kernel = Kernel()
         layoutValue1 = QHBoxLayout()
@@ -152,13 +177,13 @@ class UI:
         layoutValue2.setAlignment(Qt.AlignmentFlag.AlignLeft)
         settingLayout[3].addLayout(layoutValue2)
         settingLayout[3].setAlignment(Qt.AlignmentFlag.AlignTop)
-        labelKernel = QLabel("Kernel Intensity")
+        labelKernel = QLabel("Blur Intensity")
         sliderKernel = QSlider(Qt.Orientation.Horizontal)
         settingLayout[3].addWidget(labelKernel)
         settingLayout[3].addWidget(sliderKernel)
         sliderKernel.setMinimum(1)
         sliderKernel.setMaximum(10)
-        sliderKernel.valueChanged.connect(lambda: kernel.filter_blur(self.cvimage, self.cvmask, sliderKernel.value(), lineEditValue2.checkState()))
+        sliderKernel.valueChanged.connect(lambda: kernel.filter_blur(self.cvimageNoBlur, self.maskManager.selectedMask, sliderKernel.value(), lineEditValue1.checkState(), lineEditValue2.checkState()))
         sliderKernel.valueChanged.connect(self.updateWindow)
         #lineEditValue1.stateChanged.connect(kernel.doBackground)
         #lineEditValue2.stateChanged.connect(kernel.doBlur)
@@ -167,7 +192,7 @@ class UI:
         tabWindow.addTab(tabMask, "Mask")
         tabWindow.addTab(tabSlider, "Adjustments")
         tabWindow.addTab(tabCurve, "CurveTool")
-        tabWindow.addTab(tabKernel, "Kernels")
+        tabWindow.addTab(tabKernel, "Blur")
 
         # Layout
         for i in range(len(imgSettingLayout)):
@@ -189,7 +214,7 @@ class UI:
         tabKernel.setLayout(imgSettingLayout[3])
 
         for i in self.imageLabel:
-            i.setPixmap(pixmap)
+            i.setPixmap(self.pixmap)
 
         # Window manipulation
         self.window.setWindowTitle("PYQT")
