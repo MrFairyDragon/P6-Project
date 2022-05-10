@@ -102,8 +102,8 @@ class UI:
         dropdownInstance = QComboBox()
         for masks in self.maskManager.maskList:
             dropdownInstance.addItem(masks.maskName)
-        #    dropdownInstance.activated.connect(self.maskManager.instanceDropDownChange)
-        #    dropdownInstance.activated.connect(self.updateList)
+        dropdownInstance.activated.connect(self.maskManager.instanceDropDownChange)
+        #dropdownInstance.activated.connect(self.updateList)
 
         labelClasses = QLabel("Classes")
         dropdownClasses = QComboBox()
