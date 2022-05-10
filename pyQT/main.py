@@ -1,5 +1,6 @@
 import sys
-
+import numpy as np
+import random
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QSlider, QTabWidget, QComboBox, QLineEdit, \
@@ -20,6 +21,20 @@ class UI:
     # if path:
     #      self.load_file(path)
     #    self.pixmap =
+    def save(self):
+        cv2.imwrite("save.png", self.cvimage)
+
+    def showOutline(self):
+        outline = 0
+        kernel = np.ones((3, 3), np.uint8)
+        for k in self.maskManager.maskList:
+            kimg = k.maskImage.astype('uint8')
+            outlines = cv2.morphologyEx(kimg, cv2.MORPH_GRADIENT, kernel)
+            outlines = np.where(outlines >= 1,
+                                (random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)), 0)
+            outline += outlines
+        outline = np.where(outline >= 1, outline, self.cvimage).astype(np.uint8)
+        cv2.imshow('outline', outline)
 
     def TabSwitch(self, index):
         if index == 0:
@@ -39,9 +54,7 @@ class UI:
         self.window.update()
 
     def updateWindow(self):
-        return
         print("updating window")
-        #self.cvimage = cv2.add()
         self.pixmap = QPixmap('edit.png')
         print("set to imagelabels")
         for i in self.imageLabel:
@@ -53,6 +66,9 @@ class UI:
         print("updated window")
 
     def __init__(self):
+        self.groupVerticalLayouts = []
+        self.groupVerticalLabels = []
+        self.groupVerticalButtons = []
         self.imageRecord = []
         cvmainimage = cv2.imread('img.jpg')
         cv2.imwrite('edit.png', cvmainimage)
@@ -78,16 +94,17 @@ class UI:
         tabKernel = QWidget()
         tabLayout = QVBoxLayout()
 
-        self.maskManager = MaskManager(self.imageLabel)
+        self.maskManager = MaskManager()
         tabWindow.currentChanged.connect(self.TabSwitch)
 
         # Tab1
         labelInstance = QLabel("Instance Selection")
         labelInstance.setFixedWidth(200)
         dropdownInstance = QComboBox()
-        for mask in self.maskManager.maskList:
-            dropdownInstance.addItem(mask.maskName)
-        dropdownInstance.activated.connect(self.maskManager.instanceDropDownChange)
+        for masks in self.maskManager.maskList:
+            dropdownInstance.addItem(masks.maskName)
+        #    dropdownInstance.activated.connect(self.maskManager.instanceDropDownChange)
+        #    dropdownInstance.activated.connect(self.updateList)
 
         labelClasses = QLabel("Classes")
         dropdownClasses = QComboBox()
@@ -113,6 +130,14 @@ class UI:
         settingLayout[0].addWidget(dropdownGroups)
         settingLayout[0].addWidget(labelSelectedMasksList)
         settingLayout[0].addWidget(labelList)
+        #settingLayout[0].addWidget(self.groupList)
+        addToListButton = QPushButton("Make Group")
+        saveFileButton.pressed.connect(self.save)
+        settingLayout[0].addWidget(addToListButton)
+        settingLayout[0].addWidget(saveFileButton)
+        maskOutlineButton = QPushButton("See outline for selected masks")
+        settingLayout[0].addWidget(maskOutlineButton)
+        maskOutlineButton.pressed.connect(self.showOutline)
         #settingLayout[0].addWidget(saveFileButton)
         #saveFileButton.pressed.connect(self.load_image)
 
@@ -133,7 +158,6 @@ class UI:
         settingLayout[1].addWidget(self.sliderBrightness)
         settingLayout[1].addWidget(labelSaturation)
         settingLayout[1].addWidget(self.sliderSaturation)
-
         self.sliderBrightness.valueChanged.connect(self.maskManager.brightnessChange)
         self.sliderBrightness.sliderReleased.connect(self.maskManager.brightnessChangeForce)
         self.sliderSaturation.valueChanged.connect(self.maskManager.saturationChange)
