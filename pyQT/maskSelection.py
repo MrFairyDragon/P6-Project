@@ -3,7 +3,7 @@ from pyQT.MaskSettings import MaskSettings
 import cv2
 import numpy as np
 import random
-from pyQT.mask import Mask
+from pyQT.Mask import Mask
 from pyQT.MaskGroup import MaskGroup
 
 
