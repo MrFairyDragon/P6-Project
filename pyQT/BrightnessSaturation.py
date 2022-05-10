@@ -5,68 +5,41 @@ from PyQt5.QtGui import QPixmap
 
 class BrightnessSaturation:
 
-    def __init__(self):
-        self.testImg = cv2.imread('img.jpg')
-        self.outTestImg = self.testImg
-        self.hsvImg = cv2.cvtColor(self.testImg, cv2.COLOR_BGR2HSV)
-        self.baseHue, self.baseSat, self.baseValue = cv2.split(self.hsvImg)
-        self.currHue = self.baseHue
-        self.currSat = self.baseSat
-        self.currValue = self.baseValue
-        self.sliderHue = 0
-        self.sliderSat = 0
-        self.sliderValue = 0
+    def DrawBrightness(self, brightnessValue, image):
 
-    def brightnessChange(self, sliderNumber, mask):
-        print(sliderNumber)
-        self.sliderValue = sliderNumber
-        mask.maskSettings.brightness = sliderNumber
+        hsvImage = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        h_values, s_values, v_values = cv2.split(hsvImage)
 
-        #ALL of this work below may be better handled in a different part of the code that is run whenever any update is detected?
-        #Even if we have the current edited image this code completely redraws the current masked area and only updates brightness
-        #So write a new overencompassing function that goes through each setting on each mask I guess?
-        newValue = self.baseValue.copy()
-
-        if sliderNumber > 0:
-            limit = 255 - sliderNumber
-            newValue[newValue > limit] = 255
-            newValue[newValue <= limit] += sliderNumber
+        if brightnessValue > 0:
+            limit = 255 - brightnessValue
+            v_values[v_values > limit] = 255
+            v_values[v_values <= limit] += brightnessValue
         else:
-            limit = 0 + abs(sliderNumber)
-            newValue[newValue < limit] = 0
+            limit = 0 + abs(brightnessValue)
+            v_values[v_values < limit] = 0
             #This line of code cannot add negatives, so we force positive and subtract
-            newValue[newValue >= limit] -= abs(sliderNumber)
+            v_values[v_values >= limit] -= abs(brightnessValue)
 
-        self.currValue = newValue
-        after = cv2.merge((self.currHue, self.currSat, self.currValue))
-        newImg = cv2.cvtColor(after, cv2.COLOR_HSV2BGR)
+        mergeHSV = cv2.merge((h_values, s_values, v_values))
+        newImg = cv2.cvtColor(mergeHSV, cv2.COLOR_HSV2BGR)
+        return newImg
 
-        maskImage = np.where(mask.maskArray == True, newImg, self.testImg)
-        cv2.imwrite("edit.png", maskImage)
-        cv2.imwrite("noBlur.png", maskImage)
+    def DrawSaturation(self, saturationValue, image):
 
+        hsvImage = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        h_values, s_values, v_values = cv2.split(hsvImage)
 
-    def saturationChange(self, sliderNumber, mask):
-        print(sliderNumber)
-        self.sliderValue = sliderNumber
-        mask.maskSettings.saturation = sliderNumber
+        if saturationValue > 0:
+            limit = 255 - saturationValue
 
-        newSat = self.baseSat.copy()
-
-        if sliderNumber > 0:
-            limit = 255 - sliderNumber
-            newSat[newSat > limit] = 255
-            newSat[newSat <= limit] += sliderNumber
+            s_values[s_values > limit] = 255
+            s_values[s_values <= limit] += saturationValue
         else:
-            limit = 0 + abs(sliderNumber)
-            newSat[newSat < limit] = 0
+            limit = 0 + abs(saturationValue)
+            s_values[s_values < limit] = 0
             # This line of code cannot add negatives, so we force positive and subtract
-            newSat[newSat >= limit] -= abs(sliderNumber)
+            s_values[s_values >= limit] -= abs(saturationValue)
 
-        self.currSat = newSat
-        after = cv2.merge((self.currHue, self.currSat, self.currValue))
-        newImg = cv2.cvtColor(after, cv2.COLOR_HSV2BGR)
-
-        maskImage = np.where(mask.maskArray == True, newImg, self.testImg)
-        cv2.imwrite("edit.png", maskImage)
-        cv2.imwrite("noBlur.png", maskImage)
+        mergeHSV = cv2.merge((h_values, s_values, v_values))
+        newImg = cv2.cvtColor(mergeHSV, cv2.COLOR_HSV2BGR)
+        return newImg
