@@ -27,6 +27,7 @@ class UI:
         if index == 1:
             print("Switched to Saturation/Brightness tab")
             self.sliderBrightness.setSliderPosition(self.maskManager.getCurrentBrightness())
+            self.sliderSaturation.setSliderPosition(self.maskManager.getCurrentSaturation())
         if index == 2:
             print("Switched to CurveTool tab")
         if index == 3:
@@ -38,13 +39,18 @@ class UI:
         self.window.update()
 
     def updateWindow(self):
-        self.cvimage = cv2.add()
+        return
+        print("updating window")
+        #self.cvimage = cv2.add()
         self.pixmap = QPixmap('edit.png')
+        print("set to imagelabels")
         for i in self.imageLabel:
             i.setPixmap(self.pixmap)
-        self.current_edit = cv2.imread("current_edit.png")
+        print("success")
+        self.current_edit = cv2.imread("edit.png")
         self.cvimageNoBlur = cv2.imread('noBlur.png')
         self.window.update()
+        print("updated window")
 
     def __init__(self):
         self.imageRecord = []
@@ -58,7 +64,7 @@ class UI:
         self.maskSelection = MaskSelection()
         self.kernel = Kernel()
         self.curveTool = curveTool()
-        self.brigtnessSaturation = BrightnessSaturation()
+        self.brightnessSaturation = BrightnessSaturation()
         self.window = QWidget()
         saveFileButton = QPushButton()
         imgSettingLayout = [QHBoxLayout(), QHBoxLayout(), QHBoxLayout(), QHBoxLayout()]
@@ -72,7 +78,7 @@ class UI:
         tabKernel = QWidget()
         tabLayout = QVBoxLayout()
 
-        self.maskManager = MaskManager()
+        self.maskManager = MaskManager(self.imageLabel)
         tabWindow.currentChanged.connect(self.TabSwitch)
 
         # Tab1
@@ -118,20 +124,20 @@ class UI:
         self.sliderBrightness.setSliderPosition(0)
 
         labelSaturation = QLabel("Saturation")
-        sliderSaturation = QSlider(Qt.Orientation.Horizontal)
-        sliderSaturation.setMinimum(-255)
-        sliderSaturation.setMaximum(255)
-        sliderSaturation.setSliderPosition(0)
+        self.sliderSaturation = QSlider(Qt.Orientation.Horizontal)
+        self.sliderSaturation.setMinimum(-255)
+        self.sliderSaturation.setMaximum(255)
+        self.sliderSaturation.setSliderPosition(0)
         settingLayout[1].setAlignment(Qt.AlignmentFlag.AlignTop)
         settingLayout[1].addWidget(labelBrightness)
         settingLayout[1].addWidget(self.sliderBrightness)
         settingLayout[1].addWidget(labelSaturation)
-        settingLayout[1].addWidget(sliderSaturation)
+        settingLayout[1].addWidget(self.sliderSaturation)
 
         self.sliderBrightness.valueChanged.connect(self.maskManager.brightnessChange)
-        self.sliderBrightness.valueChanged.connect(self.updateWindow)
-        sliderSaturation.valueChanged.connect(self.maskManager.saturationChange)
-        sliderSaturation.valueChanged.connect(self.updateWindow)
+        self.sliderBrightness.sliderReleased.connect(self.maskManager.brightnessChangeForce)
+        self.sliderSaturation.valueChanged.connect(self.maskManager.saturationChange)
+        self.sliderSaturation.sliderReleased.connect(self.maskManager.saturationChangeForce)
 
         # Tab3
         colorChannelCurve = QComboBox()

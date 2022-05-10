@@ -2,21 +2,31 @@ import cv2
 
 from pyQT.maskSelection import MaskSelection
 from pyQT.BrightnessSaturation import BrightnessSaturation
+from PyQt5.QtGui import QPixmap
+
+import numpy as np
+import timeit
 
 class MaskManager:
 
-    def __init__(self):
+    def __init__(self, imageLabels):
 
+        self.baseImage = cv2.imread('img.jpg')
+        self.currentImage = self.baseImage.copy()
         self.maskList, self.classList = MaskSelection().detectMasks()
         self.groupList = []
 
         self.selectedMask = self.maskList[0]
+        self.selectedIsGroup = False
         self.brightnessSaturation = BrightnessSaturation()
-        self.imageRecord = []
+
+        self.UIimageLabels = imageLabels
+
+        self.drawTimer = timeit.default_timer()
 
     def DrawCurrentImage(self):
 
-        print("Draw current")
+        drawingImg = self.baseImage.copy()
         for mask in self.maskList:
 
             groupSettings = []
@@ -27,49 +37,130 @@ class MaskManager:
             for gMask in self.groupList:
                 if gMask.maskList.__contains__(mask):
                     groupSettings.append(gMask.maskSettings)
-            print("nested loops done")
 
             totalBrightness = mask.maskSettings.brightness
+            totalSaturation = mask.maskSettings.saturation
+
             for settings in groupSettings:
                 totalBrightness += settings.brightness
-            print(str(mask.maskSettings.brightness) + " --> " + str(totalBrightness))
+                totalSaturation += settings.saturation
 
-        #Loop through all individual masks (instances)
-        #Nested loop through classes to check for changes there
-        #Also nested loop through groups to check any that include this mask
+            drawingImg = self.brightnessSaturation.DrawBrightness(totalBrightness, drawingImg)
+            drawingImg = self.brightnessSaturation.DrawSaturation(totalSaturation, drawingImg)
 
-        #Combine all the effects for each individual mask
-        #Call a function on the mask class that returns the manipulated image?
-        #Repeat until all masks have applied all their edits
+            drawingImg = np.where(self.selectedMask.maskArray == True, drawingImg, self.currentImage)
+
+        cv2.imwrite('drawn.png', drawingImg)
+        pixmap = QPixmap('drawn.png')
+        for UIimage in self.UIimageLabels:
+            UIimage.setPixmap(pixmap)
+        self.currentImage = drawingImg
+
+#By only operating on the bounding box of the mask, this version gains a little speed
+    def DrawMask(self, mask):
+        drawingImg = self.baseImage.copy()[mask.minX:mask.maxX, mask.minY:mask.maxY]
+
+        groupSettings = []
+        for cMask in self.classList:
+            if cMask.maskList.__contains__(mask):
+                groupSettings.append(cMask.maskSettings)
+
+        for gMask in self.groupList:
+            if gMask.maskList.__contains__(mask):
+                groupSettings.append(gMask.maskSettings)
+
+        totalBrightness = mask.maskSettings.brightness
+        totalSaturation = mask.maskSettings.saturation
+
+        for settings in groupSettings:
+            totalBrightness += settings.brightness
+            totalSaturation += settings.saturation
+
+        drawingImg = self.brightnessSaturation.DrawBrightness(totalBrightness, drawingImg)
+        drawingImg = self.brightnessSaturation.DrawSaturation(totalSaturation, drawingImg)
+
+        blankImg = mask.maskImage.copy()
+        blankImg[mask.minX:mask.maxX, mask.minY:mask.maxY] = drawingImg
+
+        mergedImg = np.where(mask.maskArray == True, blankImg, self.currentImage)
+
+        cv2.imwrite('drawn.png', mergedImg)
+        pixmap = QPixmap('drawn.png')
+        for UIimage in self.UIimageLabels:
+            UIimage.setPixmap(pixmap)
+        self.currentImage = mergedImg
+
+#This version is slightly slower than the new one
+    def DrawMaskOLD(self, mask):
+        drawingImg = self.baseImage.copy()
+
+        groupSettings = []
+        for cMask in self.classList:
+            if cMask.maskList.__contains__(mask):
+                groupSettings.append(cMask.maskSettings)
+
+        for gMask in self.groupList:
+            if gMask.maskList.__contains__(mask):
+                groupSettings.append(gMask.maskSettings)
+
+        totalBrightness = mask.maskSettings.brightness
+        totalSaturation = mask.maskSettings.saturation
+
+        for settings in groupSettings:
+            totalBrightness += settings.brightness
+            totalSaturation += settings.saturation
+
+        drawingImg = self.brightnessSaturation.DrawBrightness(totalBrightness, drawingImg)
+        drawingImg = self.brightnessSaturation.DrawSaturation(totalSaturation, drawingImg)
+
+        mergedImg = np.where(mask.maskArray == True, drawingImg, self.currentImage)
+
+        cv2.imwrite('drawn.png', mergedImg)
+        pixmap = QPixmap('drawn.png')
+        for UIimage in self.UIimageLabels:
+            UIimage.setPixmap(pixmap)
+        self.currentImage = mergedImg
 
 
+    def DrawSelectedMask(self):
+        if self.selectedIsGroup:
+            for mask in self.selectedMask.maskList:
+                self.DrawMask(mask)
+        else:
+            self.DrawMask(self.selectedMask)
 
     def instanceDropDownChange(self, index):
         print("Selected instance: " + str(index))
         self.selectedMask = self.maskList[index]
-        self.imageRecord.append(cv2.imread('edit.png'))
-        print(self.imageRecord)
+        self.selectedIsGroup = False
 
     def classDropDownChange(self, index):
         print("Selected class: " + str(index))
         self.selectedMask = self.classList[index]
-        self.imageRecord.append(cv2.imread('edit.png'))
-        print(self.imageRecord)
+        self.selectedIsGroup = True
 
     def groupDropDownChange(self, index):
         print("Selected group: " + str(index))
-        self.DrawCurrentImage()
+        self.selectedIsGroup = True
 
+    def brightnessChangeForce(self):
+        self.DrawSelectedMask()
     def brightnessChange(self, sliderValue):
-        self.brightnessSaturation.brightnessChange(sliderValue, self.selectedMask)
-        print(sliderValue)
+        self.selectedMask.maskSettings.brightness = sliderValue
+        if timeit.default_timer() - self.drawTimer > .1:
+            self.DrawSelectedMask()
+            self.drawTimer = timeit.default_timer()
 
     def getCurrentBrightness(self):
         return self.selectedMask.maskSettings.brightness
 
+    def saturationChangeForce(self):
+        self.DrawSelectedMask()
     def saturationChange(self, sliderValue):
-        print(sliderValue)
+        self.selectedMask.maskSettings.saturation = sliderValue
+        if timeit.default_timer() - self.drawTimer > .1:
+            self.DrawSelectedMask()
+            self.drawTimer = timeit.default_timer()
 
-
-    def getImageRecord(self):
-        return self.imageRecord
+    def getCurrentSaturation(self):
+        return self.selectedMask.maskSettings.saturation
