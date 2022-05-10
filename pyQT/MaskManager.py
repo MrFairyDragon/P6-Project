@@ -47,14 +47,12 @@ class MaskManager:
     def instanceDropDownChange(self, index):
         print("Selected instance: " + str(index))
         self.selectedMask = self.maskList[index]
-        self.imageRecord.append(cv2.imread('edit.png'))
-        print(self.imageRecord)
+        self.groupList.append(self.maskList[index])
 
     def classDropDownChange(self, index):
         print("Selected class: " + str(index))
         self.selectedMask = self.classList[index]
-        self.imageRecord.append(cv2.imread('edit.png'))
-        print(self.imageRecord)
+        self.groupList.append(self.classList[index])
 
     def groupDropDownChange(self, index):
         print("Selected group: " + str(index))
@@ -68,6 +66,7 @@ class MaskManager:
         return self.selectedMask.maskSettings.brightness
 
     def saturationChange(self, sliderValue):
+        self.brightnessSaturation.saturationChange(sliderValue, self.selectedMask)
         print(sliderValue)
 
 
