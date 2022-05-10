@@ -12,7 +12,6 @@ class Mask:
         self.maskImage = img
         self.maskArray = array
 
-
         where = np.where(img)
         x1, y1, z1 = np.amin(where, axis=1)
         x2, y2, z2 = np.amax(where, axis=1)
