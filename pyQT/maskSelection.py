@@ -1,10 +1,9 @@
 from pyQT import ClassDict
-from pyQT.MaskSettings import MaskSettings
 import cv2
 import numpy as np
 import random
-from pyQT.Mask import Mask
-from pyQT.MaskGroup import MaskGroup
+from pyQT.mask import Mask
+import pyQT.MaskGroup
 
 
 class MaskSelection():
@@ -41,7 +40,7 @@ class MaskSelection():
                 self.uniqueClasses.append(ClassDict.coco_dict[j])
 
         for uClass in self.uniqueClasses:
-            maskGroup = MaskGroup(uClass, uClass)
+            maskGroup = pyQT.MaskGroup.MaskGroup(uClass, uClass)
             for mask in self.maskList:
                 if mask.maskClass == uClass:
                     maskGroup.addMask(mask)

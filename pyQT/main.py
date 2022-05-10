@@ -24,17 +24,16 @@ class UI:
     def save(self):
         cv2.imwrite("save.png", self.cvimage)
 
-    def showOutline(self):
-        outline = 0
-        kernel = np.ones((3, 3), np.uint8)
-        for k in self.maskManager.maskList:
-            kimg = k.maskImage.astype('uint8')
-            outlines = cv2.morphologyEx(kimg, cv2.MORPH_GRADIENT, kernel)
-            outlines = np.where(outlines >= 1,
-                                (random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)), 0)
-            outline += outlines
-        outline = np.where(outline >= 1, outline, self.cvimage).astype(np.uint8)
-        cv2.imshow('outline', outline)
+    #def showOutline(self):
+     ##  kernel = np.ones((3, 3), np.uint8)
+      #  print(len(self.maskManager.maskList))
+      #  for i in self.maskManager.maskList:
+      #      conv = i.maskImage.astype(np.uint8)
+      #      outlines = cv2.morphologyEx(conv, cv2.MORPH_GRADIENT, kernel)
+      #      outlines = np.where(outlines >= 1, 255, 0)
+      #      outline += outlines
+      #  outline = np.where(outline >= 1, outlines, np.tile(self.cvimage,(1,4))).astype(np.uint8)
+      #  cv2.imshow('outline', outline)
 
     def TabSwitch(self, index):
         if index == 0:
@@ -94,7 +93,7 @@ class UI:
         tabKernel = QWidget()
         tabLayout = QVBoxLayout()
 
-        self.maskManager = MaskManager()
+        self.maskManager = MaskManager(self.imageLabel)
         tabWindow.currentChanged.connect(self.TabSwitch)
 
         # Tab1
@@ -118,26 +117,26 @@ class UI:
         dropdownGroups.addItem("item2")
         dropdownGroups.activated.connect(self.maskManager.groupDropDownChange)
 
-        labelSelectedMasksList = QLabel("SelectedMasks")
-        labelList = QLabel("item1\nitem2")
+       # labelSelectedMasksList = QLabel("SelectedMasks")
+        #labelList = QLabel("item1\nitem2")
 
         settingLayout[0].setAlignment(Qt.AlignmentFlag.AlignTop)
         settingLayout[0].addWidget(labelInstance)
         settingLayout[0].addWidget(dropdownInstance)
         settingLayout[0].addWidget(labelClasses)
         settingLayout[0].addWidget(dropdownClasses)
-        settingLayout[0].addWidget(labelGroups)
-        settingLayout[0].addWidget(dropdownGroups)
-        settingLayout[0].addWidget(labelSelectedMasksList)
-        settingLayout[0].addWidget(labelList)
+      #  settingLayout[0].addWidget(labelGroups)
+       # settingLayout[0].addWidget(dropdownGroups)
+        #settingLayout[0].addWidget(labelSelectedMasksList)
+      #  settingLayout[0].addWidget(labelList)
         #settingLayout[0].addWidget(self.groupList)
-        addToListButton = QPushButton("Make Group")
-        saveFileButton.pressed.connect(self.save)
-        settingLayout[0].addWidget(addToListButton)
-        settingLayout[0].addWidget(saveFileButton)
-        maskOutlineButton = QPushButton("See outline for selected masks")
-        settingLayout[0].addWidget(maskOutlineButton)
-        maskOutlineButton.pressed.connect(self.showOutline)
+       # addToListButton = QPushButton("Make Group")
+       # saveFileButton.pressed.connect(self.save)
+       # settingLayout[0].addWidget(addToListButton)
+       # settingLayout[0].addWidget(saveFileButton)
+        #maskOutlineButton = QPushButton("See outline for selected masks")
+       # settingLayout[0].addWidget(maskOutlineButton)
+       # maskOutlineButton.pressed.connect(self.showOutline)
         #settingLayout[0].addWidget(saveFileButton)
         #saveFileButton.pressed.connect(self.load_image)
 

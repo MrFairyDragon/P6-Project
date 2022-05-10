@@ -6,8 +6,8 @@ from PyQt5.QtGui import QPixmap
 
 import numpy as np
 import timeit
-import cgitb
-cgitb.enable(format = 'text')
+
+
 
 class MaskManager:
 
@@ -22,7 +22,7 @@ class MaskManager:
         self.selectedIsGroup = False
         self.brightnessSaturation = BrightnessSaturation()
 
-        self.UIimageLabels = imageLabels
+        self.imageLabels = imageLabels
 
         self.drawTimer = timeit.default_timer()
 
@@ -54,11 +54,11 @@ class MaskManager:
 
         cv2.imwrite('drawn.png', drawingImg)
         pixmap = QPixmap('drawn.png')
-        for UIimage in self.UIimageLabels:
-            UIimage.setPixmap(pixmap)
+        for image in self.imageLabels:
+            image.setPixmap(pixmap)
         self.currentImage = drawingImg
 
-#By only operating on the bounding box of the mask, this version gains a little speed
+    # By only operating on the bounding box of the mask, this version gains a little speed
     def DrawMask(self, mask):
         drawingImg = self.baseImage.copy()[mask.minX:mask.maxX, mask.minY:mask.maxY]
 
@@ -87,11 +87,11 @@ class MaskManager:
 
         cv2.imwrite('drawn.png', mergedImg)
         pixmap = QPixmap('drawn.png')
-        for UIimage in self.UIimageLabels:
-            UIimage.setPixmap(pixmap)
+        for imageLabel in self.imageLabels:
+            imageLabel.setPixmap(pixmap)
         self.currentImage = mergedImg
 
-#This version is slightly slower than the new one
+    # This version is slightly slower than the new one
     def DrawMaskOLD(self, mask):
         drawingImg = self.baseImage.copy()
 
@@ -122,7 +122,6 @@ class MaskManager:
             UIimage.setPixmap(pixmap)
         self.currentImage = mergedImg
 
-
     def DrawSelectedMask(self):
         if self.selectedIsGroup:
             for mask in self.selectedMask.maskList:
@@ -148,6 +147,7 @@ class MaskManager:
 
     def brightnessChangeForce(self):
         self.DrawSelectedMask()
+
     def brightnessChange(self, sliderValue):
         self.selectedMask.maskSettings.brightness = sliderValue
         if timeit.default_timer() - self.drawTimer > .1:
@@ -159,6 +159,7 @@ class MaskManager:
 
     def saturationChangeForce(self):
         self.DrawSelectedMask()
+
     def saturationChange(self, sliderValue):
         self.selectedMask.maskSettings.saturation = sliderValue
         if timeit.default_timer() - self.drawTimer > .1:
